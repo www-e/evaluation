@@ -1,49 +1,18 @@
-import { PrismaClient } from '../generated/client/client';
-import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-import { createPool } from 'mariadb';
+// ## File: src/lib/prisma.ts
+import { PrismaClient } from '@prisma/client' 
+// Note: If you used custom output in schema, import from there instead.
+// e.g. import { PrismaClient } from '../generated/client'
 
-// Ensure we use 'mariadb://' protocol
-// Parse URL to get individual components
-const urlString = (process.env.DATABASE_URL || "").replace("mysql://", "mariadb://");
-const url = new URL(urlString);
+const prismaClientSingleton = () => {
+  return new PrismaClient()
+}
 
-console.log("Initializing MariaDB Pool...");
-console.log("Host:", url.hostname);
-console.log("Port:", url.port);
-console.log("User:", url.username);
-console.log("Database:", url.pathname.slice(1));
+type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>
 
-const pool = createPool({
-  host: url.hostname,
-  port: parseInt(url.port) || 3306,
-  user: url.username,
-  password: url.password,
-  database: url.pathname.slice(1),
-  connectionLimit: 5,
-  // Critical Timeouts
-  acquireTimeout: 30000, 
-  connectTimeout: 30000,
-  idleTimeout: 30000,
-  // SSL Configuration for Railway
-  ssl: {
-      rejectUnauthorized: false
-  },
-  // Debug mode
-  metaAsArray: false,
-});
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClientSingleton | undefined
+}
 
-console.log("Pool created with limit: 5 and timeouts: 30s");
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
-const adapter = new PrismaMariaDb(pool as any);
-
-// Use a distinct key to avoid HMR cache conflicts during dev
-const globalForPrisma = global as unknown as { prisma7: PrismaClient };
-
-export const prisma =
-  globalForPrisma.prisma7 ||
-  new PrismaClient({
-    adapter,
-    log: ['query'],
-  });
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma7 = prisma;
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
