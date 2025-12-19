@@ -99,14 +99,51 @@ export async function deleteProduct(id: string) {
   }
 }
 
-// --- FETCHERS (Can also be used in Server Components directly, but helper here is fine) ---
-export async function getCategories() {
-  return await prisma.category.findMany({ orderBy: { createdAt: 'desc' }, include: { products: true } })
-}
+import { cache } from 'react'
 
-export async function getProducts() {
-  return await prisma.product.findMany({
+// --- FETCHERS (Can also be used in Server Components directly, but helper here is fine) ---
+export const getCategories = cache(async (includeProducts: boolean = false, page: number = 1, limit: number = 12) => {
+  const skip = (page - 1) * limit;
+  return await prisma.category.findMany({
+    skip,
+    take: limit,
     orderBy: { createdAt: 'desc' },
-    include: { category: true }
+    include: { products: includeProducts }
   })
-}
+})
+
+export const getProducts = cache(async (includeCategory: boolean = true, page: number = 1, limit: number = 12) => {
+  const skip = (page - 1) * limit;
+  return await prisma.product.findMany({
+    skip,
+    take: limit,
+    orderBy: { createdAt: 'desc' },
+    include: { category: includeCategory }
+  })
+})
+
+// Optimized fetchers for specific use cases
+export const getCategoriesWithProductCount = cache(async (page: number = 1, limit: number = 12) => {
+  const skip = (page - 1) * limit;
+  return await prisma.category.findMany({
+    skip,
+    take: limit,
+    orderBy: { createdAt: 'desc' },
+    include: {
+      products: {
+        select: {
+          id: true
+        }
+      }
+    }
+  })
+})
+
+// Count functions for pagination
+export const getCategoriesCount = cache(async () => {
+  return await prisma.category.count();
+})
+
+export const getProductsCount = cache(async () => {
+  return await prisma.product.count();
+})

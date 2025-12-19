@@ -9,13 +9,17 @@ interface ImageUploadProps {
   onChange: (url: string | null) => void;
   label?: string;
   className?: string;
+  disabled?: boolean;
+  autoUpload?: boolean; // Whether to auto-upload with form submission
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ 
-  value, 
-  onChange, 
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  value,
+  onChange,
   label = "Image",
-  className = "" 
+  className = "",
+  disabled = false,
+  autoUpload = false
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(value || null);
@@ -49,7 +53,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
+      const result = reader.result as string;
+      setPreviewUrl(result);
+      // Call onChange with the data URL so parent component knows an image is selected
+      onChange(result);
     };
     reader.readAsDataURL(selectedFile);
   };
@@ -124,6 +131,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             onChange={handleFileChange}
             accept="image/*"
             className="hidden"
+            disabled={disabled}
           />
 
           <div className="flex flex-wrap gap-2">
@@ -133,6 +141,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               size="sm"
               onClick={handleButtonClick}
               className="flex items-center gap-2"
+              disabled={disabled}
             >
               <Upload className="h-4 w-4" />
               Select Image
@@ -145,18 +154,19 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 size="sm"
                 onClick={handleRemove}
                 className="flex items-center gap-2"
+                disabled={disabled}
               >
                 <Trash2 className="h-4 w-4" />
                 Remove
               </Button>
             )}
 
-            {file && (
+            {file && !autoUpload && (
               <Button
                 type="button"
                 size="sm"
                 onClick={handleUpload}
-                disabled={isUploading}
+                disabled={isUploading || disabled}
                 className="flex items-center gap-2"
               >
                 {isUploading ? (

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import FilterSidebar from '@/components/FilterSidebar';
@@ -50,7 +50,7 @@ const ProductsPage = () => {
       try {
         // Fetch both products and categories
         const [fetchedProducts, fetchedCategories] = await Promise.all([
-          getProducts(),
+          getProducts(true, 1, 100), // Get first 100 products with category info
           getCategories()
         ]);
 
@@ -101,13 +101,18 @@ const ProductsPage = () => {
     setFilteredProducts(result);
   }, [searchQuery, filters, products]);
 
-  const handleFiltersChange = (newFilters: {
+  const handleFiltersChange = useCallback((newFilters: {
     categories: string[];
     priceRange: [number, number];
     ratings: number[];
   }) => {
     setFilters(newFilters);
-  };
+  }, []);
+
+  // Memoize the available categories to prevent unnecessary re-renders
+  const availableCategories = useMemo(() => {
+    return categories.map(cat => ({ id: cat.id, name: cat.name }));
+  }, [categories]);
 
   if (loading) {
     return (
@@ -147,7 +152,7 @@ const ProductsPage = () => {
             {/* Filter Sidebar - Hidden on mobile by default, shown with filter button */}
             <div className="lg:w-80 flex-shrink-0">
               <FilterSidebar
-                availableCategories={categories.map(cat => ({ id: cat.id, name: cat.name }))}
+                availableCategories={availableCategories}
                 onFiltersChange={handleFiltersChange}
               />
             </div>

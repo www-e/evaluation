@@ -1,47 +1,39 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import ProductCard from '@/components/ProductCard';
 import Button from '@/components/ui/button';
 import Image from 'next/image';
+import { getCategories } from '@/actions/admin';
+
+interface Category {
+  id: string;
+  name: string;
+  image: string | null;
+  products: { id: string }[]; // Array of product IDs for count
+}
 
 const HomePage = () => {
-  // Sample product data for featured products
-  const featuredProducts = [
-    {
-      id: '1',
-      name: 'Butter Sandwich',
-      restaurant: 'Park Lank Hotel',
-      price: 89,
-      originalPrice: 99,
-      image: '/images/food.png',
-      rating: 4,
-      isFeatured: true,
-    },
-    {
-      id: '2',
-      name: 'Veggie Burger',
-      restaurant: 'Green Garden',
-      price: 65,
-      originalPrice: undefined,
-      image: '/images/food.png',
-      rating: 5,
-      isFeatured: true,
-    },
-    {
-      id: '3',
-      name: 'Chicken Wrap',
-      restaurant: 'Fast Bites',
-      price: 75,
-      originalPrice: 85,
-      image: '/images/food.png',
-      rating: 4,
-      isFeatured: true,
-    },
-  ];
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        // Fetch categories with product count
+        const fetchedCategories = await getCategories(true); // Include products to count them
+        setCategories(fetchedCategories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -80,29 +72,53 @@ const HomePage = () => {
       <main className="flex-grow py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Products</h2>
-            <p className="text-lg text-gray-600">Check out our most popular items</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Categories</h2>
+            <p className="text-lg text-gray-600">Browse our delicious food categories</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                name={product.name}
-                restaurant={product.restaurant}
-                price={product.price}
-                originalPrice={product.originalPrice}
-                image={product.image}
-                rating={product.rating}
-                isFeatured={product.isFeatured}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Loading categories...</p>
+            </div>
+          ) : categories.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  href={`/products?category=${category.id}`}
+                  className="group block bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
+                >
+                  <div className="aspect-square overflow-hidden">
+                    {category.image ? (
+                      <img
+                        src={category.image}
+                        alt={category.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        width={400}
+                        height={400}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-500">No Image</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{category.name}</h3>
+                    <p className="text-gray-600">{category.products.length} items</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No categories available yet.</p>
+            </div>
+          )}
 
           <div className="text-center mt-12">
             <Button variant="primary" size="md" asChild>
-              <Link href="/products">View All Products</Link>
+              <Link href="/products">View All Categories</Link>
             </Button>
           </div>
         </div>
