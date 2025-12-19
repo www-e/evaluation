@@ -1,28 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import Input from '@/components/ui/input';
-import Button from '@/components/ui/button';
-import { maskPhoneNumber } from '@/lib/utils';
 import Image from 'next/image';
+import { LoginForm } from '@/components/auth/LoginForm';
 
 const LoginPage = () => {
-  const [phoneNumber, setPhoneNumber] = useState('+971 2356 5896');
-  const [code, setCode] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Here you would typically redirect or handle the login
-      console.log('Login submitted with phone:', phoneNumber, 'and code:', code);
-    }, 1500);
-  };
-
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Navigation Header */}
@@ -59,9 +42,9 @@ const LoginPage = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </Link>
-            <Button variant="secondary" size="md" asChild>
-              <Link href="/signup">Sign Up</Link>
-            </Button>
+            <Link href="/register" className="text-amber-600 hover:underline font-medium">
+              Sign Up
+            </Link>
           </div>
         </div>
       </header>
@@ -114,41 +97,18 @@ const LoginPage = () => {
                 Welcome Back
               </h1>
               <p className="text-gray-600">
-                Enter the authentication code we sent to {maskPhoneNumber(phoneNumber)}
+                Enter your phone number to receive a verification code
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <Input
-                label="Phone Number"
-                value={phoneNumber}
-                readOnly
-                className="h-14 bg-white rounded-lg border border-gray-300"
-              />
-
-              <Input
-                label="Login Code"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="Enter code"
-                className="h-14 bg-white rounded-lg border border-gray-300"
-              />
-
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                isLoading={isLoading}
-                className="w-full h-12 text-base font-medium"
-              >
-                Submit
-              </Button>
-            </form>
+            <div className="space-y-6 w-full max-w-sm">
+              <LoginForm />
+            </div>
 
             <div className="text-center">
               <p className="text-gray-600">
                 Don't have an account?{' '}
-                <Link href="/signup" className="text-amber-600 hover:underline font-medium">
+                <Link href="/register" className="text-amber-600 hover:underline font-medium">
                   Sign up
                 </Link>
               </p>

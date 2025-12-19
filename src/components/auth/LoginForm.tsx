@@ -2,12 +2,23 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth"
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, AuthError } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2, Phone, KeyRound } from "lucide-react" // Ensure Icons are imported
+import { Loader2, Phone, KeyRound } from "lucide-react"
 import { checkUserExists } from "@/actions/auth"
+import { formatPhoneNumber } from "@/lib/utils"
+
+// Test phone numbers from main task
+const TEST_PHONE_NUMBERS = [
+  "+1 650-555-0125",
+  "+1 650-555-0123",
+  "+1 650-555-0124",
+  "+16505550125",
+  "+16505550123",
+  "+16505550124"
+];
 
 export function LoginForm() {
   const [phoneNumber, setPhoneNumber] = useState("")
@@ -18,20 +29,41 @@ export function LoginForm() {
   const [error, setError] = useState("")
   const router = useRouter()
 
+  // Validate phone number format (E.164)
+  const isValidPhoneNumber = (phone: string): boolean => {
+    // Remove all non-digit characters except +
+    const cleanedPhone = phone.replace(/[^\d+]/g, '');
+    // E.164 format validation: + followed by 1-15 digits
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    return phoneRegex.test(cleanedPhone);
+  }
+
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow digits, +, -, and space
+    if (/^[+\d\s-]*$/.test(value)) {
+      setPhoneNumber(value);
+    }
+  }
+
   const onSignInSubmit = async () => {
     setLoading(true)
     setError("")
-    
-    // Quick validation
-    if(phoneNumber.length < 10) {
-        setError("Please enter a valid phone number")
-        setLoading(false)
-        return
+
+    // Format phone number for validation
+    const formattedPhone = phoneNumber.replace(/[^\d+]/g, '');
+
+    // Validate phone number format
+    if (!isValidPhoneNumber(formattedPhone)) {
+      setError("Please enter a valid phone number in E.164 format (e.g. +1234567890)")
+      setLoading(false)
+      return
     }
 
     try {
       // Check if user exists in DB first (Since this is LOGIN)
-      const { exists } = await checkUserExists(phoneNumber)
+      const { exists } = await checkUserExists(formattedPhone)
       if (!exists) {
         setError("User not found. Please register first.")
         setLoading(false)
@@ -47,17 +79,43 @@ export function LoginForm() {
       }
 
       const appVerifier = window.recaptchaVerifier
-      const confirmation = await signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier)
       setConfirmationResult(confirmation)
       setStep("OTP")
     } catch (err: any) {
-      console.error(err)
-      setError(err.message || "Failed to send OTP")
-      // Reset captcha if it failed
-        if (window.recaptchaVerifier) {
-            window.recaptchaVerifier.clear();
-            window.recaptchaVerifier = undefined;
+      console.error("Sign in error:", err)
+
+      // Handle specific Firebase auth errors
+      let errorMessage = "Failed to send OTP";
+      if (err.code) {
+        switch (err.code) {
+          case 'auth/invalid-phone-number':
+            errorMessage = "Invalid phone number format. Please use E.164 format (e.g. +1234567890)";
+            break;
+          case 'auth/missing-phone-number':
+            errorMessage = "Please enter a phone number";
+            break;
+          case 'auth/quota-exceeded':
+            errorMessage = "SMS quota exceeded. Please try again later.";
+            break;
+          case 'auth/operation-not-allowed':
+            errorMessage = "Phone authentication is not enabled.";
+            break;
+          case 'auth/too-many-requests':
+            errorMessage = "Too many requests. Please try again later.";
+            break;
+          default:
+            errorMessage = err.message || "Failed to send OTP";
         }
+      }
+
+      setError(errorMessage)
+
+      // Reset captcha if it failed
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = undefined;
+      }
     } finally {
       setLoading(false)
     }
@@ -71,10 +129,29 @@ export function LoginForm() {
     try {
       await confirmationResult.confirm(otp)
       // Login successful, redirect to dashboard or home
-      router.push("/") 
+      router.push("/")
     } catch (err: any) {
-      console.error(err)
-      setError("Invalid Code")
+      console.error("OTP verification error:", err)
+
+      // Handle specific Firebase auth errors
+      let errorMessage = "Invalid verification code";
+      if (err.code) {
+        switch (err.code) {
+          case 'auth/invalid-verification-code':
+            errorMessage = "Invalid verification code. Please try again.";
+            break;
+          case 'auth/invalid-verification-id':
+            errorMessage = "Verification ID is invalid. Please request a new code.";
+            break;
+          case 'auth/code-expired':
+            errorMessage = "Verification code has expired. Please request a new code.";
+            break;
+          default:
+            errorMessage = err.message || "Invalid verification code";
+        }
+      }
+
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -97,22 +174,24 @@ export function LoginForm() {
                 <Input
                 placeholder="+1 234 567 8900"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={handlePhoneChange}
                 className="pl-10 text-white"
                 />
             </div>
-            <p className="text-xs text-muted-foreground">Include country code (e.g. +1)</p>
+            <p className="text-xs text-muted-foreground">
+              Include country code (e.g. +1). Supports test numbers: +1 650-555-0125, +1 650-555-0123, +1 650-555-0124
+            </p>
           </div>
-          
-          <Button 
+
+          <Button
             id="sign-in-button"
-            className="w-full font-bold" 
-            onClick={onSignInSubmit} 
+            className="w-full font-bold"
+            onClick={onSignInSubmit}
             disabled={loading}
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send Code"}
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send Verification Code"}
           </Button>
-          
+
           <div className="text-center text-sm">
              <span className="text-muted-foreground">Don't have an account? </span>
              <a href="/register" className="text-primary hover:underline">Register</a>
@@ -127,23 +206,24 @@ export function LoginForm() {
                 <Input
                     placeholder="123456"
                     value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                     className="pl-10 text-white tracking-widest text-lg"
                     maxLength={6}
                 />
             </div>
+            <p className="text-xs text-muted-foreground">Enter the 6-digit code sent to {formatPhoneNumber(phoneNumber)}</p>
           </div>
 
-          <Button 
-            className="w-full font-bold" 
-            onClick={onOtpSubmit} 
+          <Button
+            className="w-full font-bold"
+            onClick={onOtpSubmit}
             disabled={loading}
           >
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Verify & Login"}
           </Button>
-          
-          <Button 
-            variant="ghost" 
+
+          <Button
+            variant="ghost"
             className="w-full text-xs text-muted-foreground hover:text-white"
             onClick={() => setStep("PHONE")}
           >

@@ -15,7 +15,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <div className="relative">
+        <div className="relative h-16">
           {icon && (
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               {icon}
@@ -23,10 +23,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
           <input
             ref={ref}
-            className={`w-full h-16 bg-white rounded-sm outline outline-1 outline-offset-[-1px] outline-black/20 overflow-hidden ${
+            className={`w-full h-full bg-white rounded-sm border border-gray-300 ${
               icon ? 'pl-10' : 'px-4'
-            } py-2 text-base placeholder:text-zinc-500 placeholder:opacity-50 ${
-              error ? 'outline-red-500' : ''
+            } py-3 text-base placeholder:text-zinc-500 placeholder:opacity-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 ${
+              error ? 'border-red-500' : ''
             } ${className || ''}`}
             {...props}
           />

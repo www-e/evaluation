@@ -1,7 +1,6 @@
 // ## File: prisma/schema.prisma
 generator client {
   provider = "prisma-client-js" // Standard provider string
-  // output = "../src/generated/client" <--- OPTIONAL: Standard is node_modules, but keep if you prefer custom output
 }
 
 datasource db {

@@ -126,8 +126,8 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ className = '' }) => {
           <RangeSlider
             min={0}
             max={200}
-            value={priceRange}
-            onValueChange={handlePriceRangeChange}
+            defaultValue={priceRange}
+            onChange={handlePriceRangeChange}
             className="mb-2"
           />
         </div>

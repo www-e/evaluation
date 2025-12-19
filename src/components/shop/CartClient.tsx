@@ -37,17 +37,18 @@ export default function CartClient() {
     
     setLoading(true)
     try {
+        // Fetch the user from our database using the phone number from Firebase
         const { checkUserExists } = await import("@/actions/auth")
         const { user: dbUser } = await checkUserExists(user.phoneNumber!)
-        
+
         if (!dbUser) {
             alert("User record not found. Please re-login.")
             return
         }
 
         const res = await createOrder(
-            dbUser.id, 
-            items.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price })), 
+            dbUser.id,
+            items.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price })),
             totalPrice
         )
 
@@ -59,8 +60,8 @@ export default function CartClient() {
             alert("Failed to place order")
         }
     } catch (e) {
-        console.error(e)
-        alert("Error")
+        console.error("Checkout error:", e)
+        alert("Error processing checkout")
     } finally {
         setLoading(false)
     }

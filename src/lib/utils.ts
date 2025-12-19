@@ -17,10 +17,21 @@ export function formatCurrency(amount: number, currency: string = 'SAR'): string
 
 // Format phone number
 export function formatPhoneNumber(phone: string): string {
-  // Format phone number as +971 2356 5896
-  const cleaned = phone.replace(/\D/g, '');
-  if (cleaned.length >= 10) {
-    return `+${cleaned.slice(0, 3)} ${cleaned.slice(3, 5)}${cleaned.slice(5, 9)} ${cleaned.slice(9, 13)}`;
+  // Format phone number as +1 234 567 8900 (E.164 format)
+  const cleaned = phone.replace(/[^\d+]/g, '');
+  if (cleaned.startsWith('+') && cleaned.length >= 10) {
+    // Handle +1 format: +1 234-567-8900
+    if (cleaned.length === 12 && cleaned.startsWith('+1')) {
+      return `+1 ${cleaned.substring(2, 5)}-${cleaned.substring(5, 8)}-${cleaned.substring(8, 12)}`;
+    }
+    // General E.164 format: +X XXX XXX XXXX
+    if (cleaned.length >= 2) {
+      let result = cleaned.substring(0, 2); // +X
+      if (cleaned.length > 2) result += ` ${cleaned.substring(2, 5)}`; // XXX
+      if (cleaned.length > 5) result += `-${cleaned.substring(5, 8)}`; // XXX
+      if (cleaned.length > 8) result += `-${cleaned.substring(8, 12)}`; // XXXX
+      return result;
+    }
   }
   return phone;
 }

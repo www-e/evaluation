@@ -5,13 +5,15 @@ interface RangeSliderProps {
   max: number;
   defaultValue?: [number, number];
   onChange?: (values: [number, number]) => void;
+  className?: string;
 }
 
-const RangeSlider: React.FC<RangeSliderProps> = ({ 
-  min, 
-  max, 
+const RangeSlider: React.FC<RangeSliderProps> = ({
+  min,
+  max,
   defaultValue = [min, max],
-  onChange 
+  onChange,
+  className = ""
 }) => {
   const [values, setValues] = useState<[number, number]>(defaultValue);
 
@@ -42,7 +44,7 @@ const RangeSlider: React.FC<RangeSliderProps> = ({
   const maxPercent = ((values[1] - min) / (max - min)) * 100;
 
   return (
-    <div className="w-full">
+    <div className={`w-full ${className}`}>
       <div className="relative h-5">
         {/* Track */}
         <div className="absolute h-[5px] w-full top-1/2 -translate-y-1/2 bg-red-950 rounded-xl"></div>
