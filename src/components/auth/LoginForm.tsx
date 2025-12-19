@@ -175,7 +175,7 @@ export function LoginForm() {
                 placeholder="+1 234 567 8900"
                 value={phoneNumber}
                 onChange={handlePhoneChange}
-                className="pl-10 text-white"
+                className="pl-10"
                 />
             </div>
             <p className="text-xs text-muted-foreground">
@@ -207,7 +207,7 @@ export function LoginForm() {
                     placeholder="123456"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    className="pl-10 text-white tracking-widest text-lg"
+                    className="pl-10 tracking-widest text-lg"
                     maxLength={6}
                 />
             </div>

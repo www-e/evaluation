@@ -4,6 +4,7 @@ import { useState } from "react"
 import { createProduct, deleteProduct } from "@/actions/admin"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import ImageUpload from "@/components/ui/ImageUpload"
 import { Loader2, Trash2, Plus, Image as ImageIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -27,7 +28,7 @@ export function ProductsClient({ initialData, categories }: { initialData: Produ
   const [name, setName] = useState("")
   const [desc, setDesc] = useState("")
   const [price, setPrice] = useState("")
-  const [image, setImage] = useState("")
+  const [image, setImage] = useState<string | null>(null)
   const [catId, setCatId] = useState(categories[0]?.id || "")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -39,12 +40,12 @@ export function ProductsClient({ initialData, categories }: { initialData: Produ
         return
     }
     setLoading(true)
-    
-    const res = await createProduct({ 
-        name, 
+
+    const res = await createProduct({
+        name,
         description: desc,
         price: parseFloat(price),
-        image,
+        image: image || undefined,
         categoryId: catId
     })
 
@@ -52,7 +53,7 @@ export function ProductsClient({ initialData, categories }: { initialData: Produ
       setName("")
       setDesc("")
       setPrice("")
-      setImage("")
+      setImage(null)
       router.refresh()
     } else {
       alert("Error creating product")
@@ -75,40 +76,43 @@ export function ProductsClient({ initialData, categories }: { initialData: Produ
       {/* Create Form */}
       <div className="p-6 rounded-xl bg-card border border-border glass">
         <h3 className="text-lg font-semibold text-white mb-4">Add New Product</h3>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-            <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Product Name</label>
-                <Input value={name} onChange={e => setName(e.target.value)} className="text-white bg-secondary/50" />
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Product Name</label>
+                    <Input value={name} onChange={e => setName(e.target.value)} className="text-white bg-secondary/50" />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Price ($)</label>
+                    <Input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} className="text-white bg-secondary/50" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm font-medium text-muted-foreground">Category</label>
+                    <select
+                        className="flex h-12 w-full rounded-lg border border-input bg-background/50 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={catId}
+                        onChange={e => setCatId(e.target.value)}
+                    >
+                        <option value="" disabled>Select Category</option>
+                        {categories.map(c => <option key={c.id} value={c.id} className="bg-gray-900">{c.name}</option>)}
+                    </select>
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm font-medium text-muted-foreground">Description</label>
+                    <Input value={desc} onChange={e => setDesc(e.target.value)} className="text-white bg-secondary/50" />
+                </div>
             </div>
-            <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Price ($)</label>
-                <Input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} className="text-white bg-secondary/50" />
-            </div>
-            <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Category</label>
-                <select 
-                    className="flex h-12 w-full rounded-lg border border-input bg-background/50 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={catId}
-                    onChange={e => setCatId(e.target.value)}
-                >
-                    <option value="" disabled>Select Category</option>
-                    {categories.map(c => <option key={c.id} value={c.id} className="bg-gray-900">{c.name}</option>)}
-                </select>
-            </div>
-             <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium text-muted-foreground">Description</label>
-                <Input value={desc} onChange={e => setDesc(e.target.value)} className="text-white bg-secondary/50" />
-            </div>
-             <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Image URL</label>
-                <Input value={image} onChange={e => setImage(e.target.value)} className="text-white bg-secondary/50" />
-            </div>
-            <div className="md:col-span-3 lg:col-span-1">
-                <Button disabled={loading} type="submit" className="w-full">
-                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
-                    Add Product
-                </Button>
-            </div>
+
+            <ImageUpload
+              value={image || undefined}
+              onChange={setImage}
+              label="Product Image"
+            />
+
+            <Button disabled={loading} type="submit" className="w-full md:w-auto">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
+                Add Product
+            </Button>
         </form>
       </div>
 

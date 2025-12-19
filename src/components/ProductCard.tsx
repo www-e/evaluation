@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import StarRating from '@/components/ui/StarRating';
 import { formatCurrency } from '@/lib/utils';
+import Link from 'next/link';
 
 interface ProductCardProps {
   id: string;
@@ -9,7 +10,7 @@ interface ProductCardProps {
   restaurant: string;
   price: number;
   originalPrice?: number;
-  image: string;
+  image?: string;
   rating: number;
   isFeatured?: boolean;
   className?: string;
@@ -27,7 +28,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`w-full bg-white rounded-lg shadow-sm overflow-hidden transition-transform duration-300 hover:shadow-md ${className}`}>
+    <Link href={`/products/${id}`} className={`block w-full bg-white rounded-lg shadow-sm overflow-hidden transition-transform duration-300 hover:shadow-md ${className}`}>
       <div className="relative aspect-square overflow-hidden">
         {image ? (
           <Image
@@ -76,7 +77,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

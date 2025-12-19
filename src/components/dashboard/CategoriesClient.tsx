@@ -4,6 +4,7 @@ import { useState } from "react"
 import { createCategory, deleteCategory } from "@/actions/admin"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import ImageUpload from "@/components/ui/ImageUpload"
 import { Loader2, Trash2, Plus, Image as ImageIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -17,7 +18,7 @@ interface Category {
 export function CategoriesClient({ initialData }: { initialData: Category[] }) {
   const [categories, setCategories] = useState(initialData)
   const [name, setName] = useState("")
-  const [image, setImage] = useState("")
+  const [image, setImage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
@@ -25,11 +26,11 @@ export function CategoriesClient({ initialData }: { initialData: Category[] }) {
     e.preventDefault()
     if (!name) return
     setLoading(true)
-    
+
     const res = await createCategory({ name, image: image || undefined })
     if (res.success) {
       setName("")
-      setImage("")
+      setImage(null)
       router.refresh() // Reload server data
     } else {
       alert("Error creating category")
@@ -52,25 +53,23 @@ export function CategoriesClient({ initialData }: { initialData: Category[] }) {
       {/* Create Form */}
       <div className="p-6 rounded-xl bg-card border border-border glass">
         <h3 className="text-lg font-semibold text-white mb-4">Add New Category</h3>
-        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="flex-1 space-y-2 w-full">
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
                 <label className="text-sm font-medium text-muted-foreground">Category Name</label>
-                <Input 
-                    placeholder="e.g. Burgers" 
-                    value={name} 
-                    onChange={e => setName(e.target.value)} 
+                <Input
+                    placeholder="e.g. Burgers"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
                     className="text-white bg-secondary/50"
                 />
             </div>
-            <div className="flex-1 space-y-2 w-full">
-                <label className="text-sm font-medium text-muted-foreground">Image URL</label>
-                <Input 
-                    placeholder="https://..." 
-                    value={image} 
-                    onChange={e => setImage(e.target.value)} 
-                    className="text-white bg-secondary/50"
-                />
-            </div>
+
+            <ImageUpload
+              value={image || undefined}
+              onChange={setImage}
+              label="Category Image"
+            />
+
             <Button disabled={loading} type="submit" className="w-full md:w-auto">
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
                 Add Category

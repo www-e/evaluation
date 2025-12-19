@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Checkbox from '@/components/ui/Checkbox';
 import RangeSlider from '@/components/RangeSlider';
 import StarRating from '@/components/ui/StarRating';
@@ -11,28 +11,21 @@ interface FilterOption {
 
 interface FilterSidebarProps {
   className?: string;
+  onFiltersChange?: (filters: {
+    categories: string[];
+    priceRange: [number, number];
+    ratings: number[];
+  }) => void;
+  availableCategories: { id: string; name: string }[];
 }
 
-const FilterSidebar: React.FC<FilterSidebarProps> = ({ className = '' }) => {
-  const [categories, setCategories] = useState<FilterOption[]>([
-    { id: 'vegetarian', label: 'Vegetarian', checked: false },
-    { id: 'asian', label: 'Asian', checked: false },
-    { id: 'chinese', label: 'Chinese', checked: false },
-    { id: 'italian', label: 'Italian', checked: false },
-    { id: 'fast-food', label: 'Fast Food', checked: false },
-    { id: 'mexican', label: 'Mexican', checked: false },
-    { id: 'american', label: 'American', checked: false },
-    { id: 'healthy', label: 'Healthy', checked: false },
-    { id: 'sushi', label: 'Sushi', checked: false },
-  ]);
-
-  const [specialRequirements, setSpecialRequirements] = useState<FilterOption[]>([
-    { id: 'no-egg', label: 'No egg', checked: false },
-    { id: 'no-fish', label: 'No fish', checked: false },
-    { id: 'no-peanuts', label: 'No peanuts', checked: false },
-  ]);
-
-  const [priceRange, setPriceRange] = useState<[number, number]>([10, 80]);
+const FilterSidebar: React.FC<FilterSidebarProps> = ({
+  className = '',
+  onFiltersChange,
+  availableCategories = []
+}) => {
+  const [categories, setCategories] = useState<FilterOption[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 200]);
   const [ratings, setRatings] = useState<{[key: number]: boolean}>({
     5: false,
     4: false,
@@ -41,23 +34,31 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ className = '' }) => {
     1: false
   });
 
-  const handleCategoryChange = (id: string) => {
-    setCategories(categories.map(cat =>
-      cat.id === id ? { ...cat, checked: !cat.checked } : cat
-    ));
-  };
+  // Initialize categories from available categories prop
+  useEffect(() => {
+    if (availableCategories.length > 0) {
+      const initialCategories = availableCategories.map(cat => ({
+        id: cat.id,
+        label: cat.name,
+        checked: false
+      }));
+      setCategories(initialCategories);
+    }
+  }, [availableCategories]);
 
-  const handleSpecialRequirementChange = (id: string) => {
-    setSpecialRequirements(specialRequirements.map(req =>
-      req.id === id ? { ...req, checked: !req.checked } : req
-    ));
+  const handleCategoryChange = (id: string) => {
+    const updatedCategories = categories.map(cat =>
+      cat.id === id ? { ...cat, checked: !cat.checked } : cat
+    );
+    setCategories(updatedCategories);
   };
 
   const handleRatingChange = (rating: number) => {
-    setRatings(prev => ({
-      ...prev,
-      [rating]: !prev[rating]
-    }));
+    const updatedRatings = {
+      ...ratings,
+      [rating]: !ratings[rating]
+    };
+    setRatings(updatedRatings);
   };
 
   const handlePriceRangeChange = (value: [number, number]) => {
@@ -65,11 +66,30 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ className = '' }) => {
   };
 
   const clearAllFilters = () => {
-    setCategories(categories.map(cat => ({ ...cat, checked: false })));
-    setSpecialRequirements(specialRequirements.map(req => ({ ...req, checked: false })));
+    const clearedCategories = categories.map(cat => ({ ...cat, checked: false }));
+    setCategories(clearedCategories);
     setRatings({5: false, 4: false, 3: false, 2: false, 1: false});
-    setPriceRange([10, 80]);
+    setPriceRange([0, 200]);
   };
+
+  // Notify parent component when filters change
+  useEffect(() => {
+    if (onFiltersChange) {
+      const activeCategories = categories
+        .filter(cat => cat.checked)
+        .map(cat => cat.id);
+
+      const activeRatings = Object.entries(ratings)
+        .filter(([_, checked]) => checked)
+        .map(([rating]) => parseInt(rating));
+
+      onFiltersChange({
+        categories: activeCategories,
+        priceRange,
+        ratings: activeRatings
+      });
+    }
+  }, [categories, priceRange, ratings, onFiltersChange]);
 
   return (
     <div className={`w-full bg-white rounded-lg shadow-sm p-4 sm:p-6 ${className}`}>
@@ -84,29 +104,10 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ className = '' }) => {
         </button>
       </div>
 
-      {/* Rating Filter */}
-      <div className="mb-4 sm:mb-6">
-        <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3 sm:mb-4">Rating</h3>
-        <div className="space-y-2 sm:space-y-3">
-          {[5, 4, 3, 2, 1].map((rating) => (
-            <div key={rating} className="flex items-center justify-between">
-              <div className="flex items-center">
-                <StarRating rating={rating} maxRating={5} size="sm" />
-                <span className="ml-2 text-xs sm:text-sm text-gray-600">& Up</span>
-              </div>
-              <Checkbox
-                checked={ratings[rating]}
-                onChange={() => handleRatingChange(rating)}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Category Filter */}
       <div className="mb-4 sm:mb-6">
-        <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3 sm:mb-4">Category</h3>
-        <div className="space-y-2 sm:space-y-3">
+        <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3 sm:mb-4">Categories</h3>
+        <div className="space-y-2 sm:space-y-3 max-h-60 overflow-y-auto pr-2">
           {categories.map((category) => (
             <div key={category.id} className="flex items-center justify-between">
               <span className="text-xs sm:text-sm text-gray-700">{category.label}</span>
@@ -137,22 +138,22 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ className = '' }) => {
             <span className="text-gray-500">—</span>
             <span className="text-gray-700">${priceRange[1]}</span>
           </div>
-          <button className="bg-amber-500 text-white text-xs px-3 py-1 sm:px-4 sm:py-2 rounded-full hover:bg-amber-600 transition-colors">
-            Filter
-          </button>
         </div>
       </div>
 
-      {/* Special Requirements */}
-      <div>
-        <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3 sm:mb-4">Special Requirements</h3>
+      {/* Rating Filter */}
+      <div className="mb-4 sm:mb-6">
+        <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3 sm:mb-4">Rating</h3>
         <div className="space-y-2 sm:space-y-3">
-          {specialRequirements.map((requirement) => (
-            <div key={requirement.id} className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-gray-700">{requirement.label}</span>
+          {[5, 4, 3, 2, 1].map((rating) => (
+            <div key={rating} className="flex items-center justify-between">
+              <div className="flex items-center">
+                <StarRating rating={rating} maxRating={5} size="sm" />
+                <span className="ml-2 text-xs sm:text-sm text-gray-600">& Up</span>
+              </div>
               <Checkbox
-                checked={requirement.checked}
-                onChange={() => handleSpecialRequirementChange(requirement.id)}
+                checked={ratings[rating]}
+                onChange={() => handleRatingChange(rating)}
               />
             </div>
           ))}

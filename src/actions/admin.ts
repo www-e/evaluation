@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { deleteImage } from "@/lib/fileUpload"
 
 // Validations
 const categorySchema = z.object({
@@ -36,7 +37,20 @@ export async function createCategory(data: z.infer<typeof categorySchema>) {
 
 export async function deleteCategory(id: string) {
   try {
+    // Get the category to access its image
+    const category = await prisma.category.findUnique({
+      where: { id },
+      select: { image: true }
+    });
+
+    // Delete the category
     await prisma.category.delete({ where: { id } })
+
+    // If the category had an image, delete it from the filesystem
+    if (category?.image) {
+      await deleteImage(category.image);
+    }
+
     revalidatePath("/dashboard/categories")
     revalidatePath("/")
     return { success: true }
@@ -63,7 +77,20 @@ export async function createProduct(data: z.infer<typeof productSchema>) {
 
 export async function deleteProduct(id: string) {
   try {
+    // Get the product to access its image
+    const product = await prisma.product.findUnique({
+      where: { id },
+      select: { image: true }
+    });
+
+    // Delete the product
     await prisma.product.delete({ where: { id } })
+
+    // If the product had an image, delete it from the filesystem
+    if (product?.image) {
+      await deleteImage(product.image);
+    }
+
     revalidatePath("/dashboard/products")
     revalidatePath("/")
     return { success: true }
@@ -78,7 +105,7 @@ export async function getCategories() {
 }
 
 export async function getProducts() {
-  return await prisma.product.findMany({ 
+  return await prisma.product.findMany({
     orderBy: { createdAt: 'desc' },
     include: { category: true }
   })

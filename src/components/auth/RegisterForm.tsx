@@ -174,7 +174,7 @@ export function RegisterForm() {
                 placeholder="John Doe"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="pl-10 text-white"
+                className="pl-10"
                 />
             </div>
           </div>
@@ -187,7 +187,7 @@ export function RegisterForm() {
                 placeholder="+1 234 567 8900"
                 value={phoneNumber}
                 onChange={handlePhoneChange}
-                className="pl-10 text-white"
+                className="pl-10"
                 />
             </div>
             <p className="text-xs text-muted-foreground">Include country code (e.g. +1)</p>
@@ -217,7 +217,7 @@ export function RegisterForm() {
                     placeholder="123456"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    className="pl-10 text-white tracking-widest text-lg"
+                    className="pl-10 tracking-widest text-lg"
                     maxLength={6}
                 />
             </div>

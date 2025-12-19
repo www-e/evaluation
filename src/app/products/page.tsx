@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import FilterSidebar from '@/components/FilterSidebar';
@@ -8,93 +8,114 @@ import ProductCard from '@/components/ProductCard';
 import Input from '@/components/ui/input';
 import Button from '@/components/ui/button';
 import Image from 'next/image';
+import { getProducts, getCategories } from '@/actions/admin';
+
+interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  image?: string;
+  categoryId: string;
+  category: {
+    id: string;
+    name: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  image?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const ProductsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    categories: [] as string[],
+    priceRange: [0, 200] as [number, number],
+    ratings: [] as number[]
+  });
 
-  // Sample product data
-  const products = [
-    {
-      id: '1',
-      name: 'Butter Sandwich',
-      restaurant: 'Park Lank Hotel',
-      price: 89,
-      originalPrice: 99,
-      image: '/images/food.png',
-      rating: 4,
-      isFeatured: true,
-    },
-    {
-      id: '2',
-      name: 'Veggie Burger',
-      restaurant: 'Green Garden',
-      price: 65,
-      originalPrice: undefined,
-      image: '/images/food.png',
-      rating: 5,
-      isFeatured: false,
-    },
-    {
-      id: '3',
-      name: 'Chicken Wrap',
-      restaurant: 'Fast Bites',
-      price: 75,
-      originalPrice: 85,
-      image: '/images/food.png',
-      rating: 4,
-      isFeatured: true,
-    },
-    {
-      id: '4',
-      name: 'Pasta Primavera',
-      restaurant: 'Italian Delight',
-      price: 120,
-      originalPrice: undefined,
-      image: '/images/food.png',
-      rating: 5,
-      isFeatured: false,
-    },
-    {
-      id: '5',
-      name: 'Sushi Platter',
-      restaurant: 'Tokyo Express',
-      price: 180,
-      originalPrice: 200,
-      image: '/images/food.png',
-      rating: 4,
-      isFeatured: true,
-    },
-    {
-      id: '6',
-      name: 'Beef Tacos',
-      restaurant: 'Mexicana',
-      price: 55,
-      originalPrice: undefined,
-      image: '/images/food.png',
-      rating: 4,
-      isFeatured: false,
-    },
-    {
-      id: '7',
-      name: 'Fruit Salad',
-      restaurant: 'Healthy Bites',
-      price: 45,
-      originalPrice: undefined,
-      image: '/images/food.png',
-      rating: 5,
-      isFeatured: false,
-    },
-    {
-      id: '8',
-      name: 'Chocolate Cake',
-      restaurant: 'Sweet Dreams',
-      price: 95,
-      originalPrice: 110,
-      image: '/images/food.png',
-      rating: 5,
-      isFeatured: true,
-    },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch both products and categories
+        const [fetchedProducts, fetchedCategories] = await Promise.all([
+          getProducts(),
+          getCategories()
+        ]);
+
+        setProducts(fetchedProducts as Product[]);
+        setFilteredProducts(fetchedProducts as Product[]);
+        setCategories(fetchedCategories as Category[]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Apply all filters
+  useEffect(() => {
+    let result = [...products];
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      result = result.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply category filter
+    if (filters.categories.length > 0) {
+      result = result.filter(product =>
+        filters.categories.includes(product.categoryId)
+      );
+    }
+
+    // Apply price range filter
+    result = result.filter(product =>
+      product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
+    );
+
+    // Apply rating filter (using default rating of 4 for all products)
+    if (filters.ratings.length > 0) {
+      result = result.filter(product =>
+        filters.ratings.some(rating => 4 >= rating)
+      );
+    }
+
+    setFilteredProducts(result);
+  }, [searchQuery, filters, products]);
+
+  const handleFiltersChange = (newFilters: {
+    categories: string[];
+    priceRange: [number, number];
+    ratings: number[];
+  }) => {
+    setFilters(newFilters);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-2xl font-bold text-gray-900">Loading products...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -125,7 +146,10 @@ const ProductsPage = () => {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filter Sidebar - Hidden on mobile by default, shown with filter button */}
             <div className="lg:w-80 flex-shrink-0">
-              <FilterSidebar />
+              <FilterSidebar
+                availableCategories={categories.map(cat => ({ id: cat.id, name: cat.name }))}
+                onFiltersChange={handleFiltersChange}
+              />
             </div>
 
             {/* Main Content */}
@@ -151,19 +175,25 @@ const ProductsPage = () => {
 
               {/* Products Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    restaurant={product.restaurant}
-                    price={product.price}
-                    originalPrice={product.originalPrice}
-                    image={product.image}
-                    rating={product.rating}
-                    isFeatured={product.isFeatured}
-                  />
-                ))}
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      restaurant={product.category.name}
+                      price={product.price}
+                      originalPrice={undefined}
+                      image={product.image || '/images/food.png'}
+                      rating={4} // Default rating since we don't have rating in the schema
+                      isFeatured={false} // Default to not featured since we don't have this in schema
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-gray-500 text-lg">No products found matching your filters.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
