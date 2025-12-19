@@ -13,7 +13,7 @@
   --color-border: #374151;
   --color-input: #1f2937;
   --color-ring: #f59e0b;
-  
+
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
@@ -30,7 +30,8 @@
 
 /* Base Styles */
 body {
-  background-color: var(--color-background);
+  background: url('/images/food.png') no-repeat center center fixed;
+  background-size: cover;
   color: var(--color-foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;

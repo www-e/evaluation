@@ -27,63 +27,53 @@ const ProductCard: React.FC<ProductCardProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`w-full max-w-sm bg-white rounded-[20px] outline outline-1 outline-offset-[-1px] outline-black/20 overflow-hidden ${className}`}>
-      <div className="relative">
-        <div className="size-80 bg-white rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[200px] rounded-br-[200px] overflow-hidden mx-auto">
-          {image ? (
-            <Image
-              src={image}
-              alt={name}
-              width={320}
-              height={320}
-              className="size-80 object-cover rounded-[62px]"
-            />
-          ) : (
-            <div className="size-80 bg-gray-200 rounded-[62px] flex items-center justify-center">
-              <span className="text-gray-500">No Image</span>
-            </div>
-          )}
-        </div>
-        
+    <div className={`w-full bg-white rounded-lg shadow-sm overflow-hidden transition-transform duration-300 hover:shadow-md ${className}`}>
+      <div className="relative aspect-square overflow-hidden">
+        {image ? (
+          <Image
+            src={image}
+            alt={name}
+            fill
+            className="object-cover transition-transform duration-300 hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-500">No Image</span>
+          </div>
+        )}
+
         {isFeatured && (
-          <div className="absolute top-5 left-5 bg-white rounded-sm outline outline-1 outline-offset-[-1px] outline-black/20 px-4 py-2">
-            <span className="text-xl font-normal font-['Aspira_XWide'] text-black">Featured</span>
+          <div className="absolute top-3 left-3 bg-amber-400 text-black text-xs font-semibold px-2 py-1 rounded">
+            Featured
           </div>
         )}
       </div>
-      
-      <div className="p-5">
+
+      <div className="p-4">
         <div className="flex items-center mb-2">
-          <StarRating rating={rating} maxRating={5} size="md" />
+          <StarRating rating={rating} maxRating={5} size="sm" />
+          <span className="ml-2 text-sm text-gray-500">({rating})</span>
         </div>
-        
-        <h3 className="text-2xl font-semibold font-['Cyntho_Next'] text-black mb-2">
+
+        <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
           {name}
         </h3>
-        
-        <p className="text-xl font-medium font-['Cyntho_Next'] text-black/50 mb-1">
+
+        <p className="text-sm text-gray-600 mb-2 line-clamp-1">
           {restaurant}
         </p>
-        
-        <p className="text-xl font-medium font-['Cyntho_Next'] text-red-600/50 mb-3">
-          Restaurant
-        </p>
-        
+
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             {originalPrice && originalPrice !== price && (
-              <span className="text-xl font-semibold font-['Cyntho_Next'] text-black/50 line-through mr-2">
+              <span className="text-sm text-gray-500 line-through mr-2">
                 {formatCurrency(originalPrice)}
               </span>
             )}
-            <span className="text-xl font-semibold font-['Cyntho_Next'] text-red-600">
+            <span className="text-lg font-bold text-amber-600">
               {formatCurrency(price)}
             </span>
           </div>
-          
-          {originalPrice && originalPrice !== price && (
-            <div className="w-20 h-0 outline outline-1 outline-offset-[-0.50px] outline-black/50"></div>
-          )}
         </div>
       </div>
     </div>
