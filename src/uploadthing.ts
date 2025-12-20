@@ -14,11 +14,14 @@ export const ourFileRouter = {
       maxFileCount: 1,
     },
   })
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       // This code runs on your server before upload
-      // You can implement authentication here if needed
-      // For now, we'll allow all uploads
-      return { userId: "anonymous" }; // Return metadata
+      // For a real application, implement proper authentication
+      // For now, we'll allow all uploads but you should add proper auth
+      const user = { id: "anonymous" }; // Replace with real auth logic
+
+      // If you don't want to require auth, just return the metadata
+      return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload

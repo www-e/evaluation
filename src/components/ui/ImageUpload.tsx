@@ -52,90 +52,133 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     <div className={`space-y-3 ${className}`}>
       <label className="text-sm font-medium text-muted-foreground">{label}</label>
 
-      {/* Preview area */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start">
-        <div className="relative w-32 h-32 border border-border rounded-lg overflow-hidden bg-secondary flex items-center justify-center">
+      {/* Preview area with full-width button on image */}
+      <div className="space-y-2">
+        <div className="relative w-full min-h-40 border-2 border-dashed border-input rounded-lg overflow-hidden bg-secondary">
           {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt="Preview"
-              className="w-full h-full object-cover"
-            />
+            <div className="relative w-full">
+              <div className="flex items-center justify-center w-full min-h-40">
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="max-h-40 object-contain max-w-full"
+                />
+              </div>
+              <div className="absolute top-2 right-2 bg-black/50 rounded-md p-1 opacity-0 hover:opacity-100 transition-opacity">
+                <UploadButton
+                  endpoint="imageUploader"
+                  onClientUploadComplete={handleUploadComplete}
+                  onUploadError={handleError}
+                  appearance={{
+                    button: {
+                      backgroundColor: disabled ? '#9ca3af' : '#3b82f6',
+                      color: 'white',
+                      borderRadius: '0.375rem',
+                      padding: '0.25rem 0.5rem',
+                      fontSize: '0.75rem',
+                      fontWeight: '500',
+                      border: 'none',
+                      cursor: disabled ? 'not-allowed' : 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                    },
+                  }}
+                  disabled={disabled || isUploading}
+                  content={{
+                    button({ ready, isUploading }: { ready: boolean, isUploading: boolean }) {
+                      if (isUploading) {
+                        return (
+                          <span className="flex items-center gap-1">
+                            <div className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent"></div>
+                            <Upload className="h-3 w-3" />
+                          </span>
+                        );
+                      }
+                      return (
+                        <span className="flex items-center gap-1">
+                          <Upload className="h-3 w-3" />
+                          Change
+                        </span>
+                      );
+                    },
+                  }}
+                />
+              </div>
+              <div className="absolute top-2 left-2 bg-black/50 rounded-md p-1 opacity-0 hover:opacity-100 transition-opacity">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleRemove}
+                  className="h-7 w-7 p-1"
+                  disabled={disabled}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           ) : (
-            <ImageIcon className="h-10 w-10 text-muted-foreground opacity-50" />
-          )}
-        </div>
-
-        <div className="flex-1 space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <UploadButton
-              endpoint="imageUploader"
-              onClientUploadComplete={handleUploadComplete}
-              onUploadError={handleError}
-              appearance={{
-                button: {
-                  backgroundColor: disabled ? '#9ca3af' : '#3b82f6',
-                  color: 'white',
-                  borderRadius: '0.375rem',
-                  padding: '0.5rem 1rem',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  border: 'none',
-                  cursor: disabled ? 'not-allowed' : 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                },
-                container: {
-                  marginTop: '0.5rem',
-                },
-              }}
-              disabled={disabled || isUploading}
-              content={{
-                button({ ready, isUploading }: { ready: boolean, isUploading: boolean }) {
-                  if (isUploading) {
+            <div className="w-full h-full flex items-center justify-center p-4">
+              <UploadButton
+                endpoint="imageUploader"
+                onClientUploadComplete={handleUploadComplete}
+                onUploadError={handleError}
+                appearance={{
+                  container: {
+                    width: '100%',
+                    height: '100%',
+                  },
+                  button: {
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    cursor: disabled ? 'not-allowed' : 'pointer',
+                    color: 'inherit',
+                    padding: '1rem',
+                  },
+                }}
+                disabled={disabled || isUploading}
+                content={{
+                  button({ ready, isUploading }: { ready: boolean, isUploading: boolean }) {
+                    if (isUploading) {
+                      return (
+                        <span className="flex flex-col items-center">
+                          <div className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent mb-2"></div>
+                          <span className="text-white font-medium">Uploading...</span>
+                        </span>
+                      );
+                    }
                     return (
-                      <span className="flex items-center gap-2">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-                        Uploading...
+                      <span className="flex flex-col items-center">
+                        <div className="mx-auto w-12 h-12 bg-secondary rounded-full flex items-center justify-center mb-2">
+                          <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                        <span className="text-muted-foreground font-medium">Click to select image</span>
+                        <span className="text-muted-foreground/70 text-sm mt-1">Supports JPG, PNG, WEBP</span>
                       </span>
                     );
-                  }
-                  return (
-                    <span className="flex items-center gap-2">
-                      <Upload className="h-4 w-4" />
-                      {ready ? 'Select Image' : 'Preparing...'}
-                    </span>
-                  );
-                },
-              }}
-            />
-
-            {previewUrl && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleRemove}
-                className="flex items-center gap-2"
-                disabled={disabled}
-              >
-                <Trash2 className="h-4 w-4" />
-                Remove
-              </Button>
-            )}
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-500">{error}</p>
-          )}
-
-          {previewUrl && (
-            <p className="text-xs text-muted-foreground break-all">
-              Current: {previewUrl.split('/').pop()}
-            </p>
+                  },
+                }}
+              />
+            </div>
           )}
         </div>
+
+        {error && (
+          <p className="text-sm text-red-500">{error}</p>
+        )}
+
+        {previewUrl && (
+          <p className="text-xs text-muted-foreground break-all">
+            Current: {previewUrl.split('/').pop()}
+          </p>
+        )}
       </div>
     </div>
   );
