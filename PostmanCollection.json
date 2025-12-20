@@ -1,0 +1,716 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+    "name": "Next.js E-Commerce API Collection - Complete",
+    "description": "Complete API collection for the Next.js e-commerce application with all endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "API Routes",
+      "item": [
+        {
+          "name": "File Upload API",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload"]
+            },
+            "description": "Upload files to the server. Supports image/jpeg, image/png, image/webp, image/gif. Max size 5MB."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication APIs",
+      "item": [
+        {
+          "name": "Check User Exists",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/check",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "check"]
+            },
+            "description": "Check if a user exists by mobile number"
+          },
+          "response": []
+        },
+        {
+          "name": "Sync User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"+1234567890\",\n  \"fullName\": \"John Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "sync"]
+            },
+            "description": "Sync user information to database after Firebase authentication"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin APIs",
+      "item": [
+        {
+          "name": "Categories Management",
+          "item": [
+            {
+              "name": "Create Category",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Burgers\",\n  \"image\": \"/uploads/burger-image.jpg\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/categories",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "categories"]
+                },
+                "description": "Create a new category"
+              },
+              "response": []
+            },
+            {
+              "name": "Update Category",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Category Name\",\n  \"image\": \"/uploads/updated-image.jpg\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/categories/{id}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "categories", "{id}"]
+                },
+                "description": "Update an existing category by ID"
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Category",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/categories/{id}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "categories", "{id}"]
+                },
+                "description": "Delete a category by ID. This also deletes the associated image file."
+              },
+              "response": []
+            },
+            {
+              "name": "Get Categories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/categories?includeProducts=true&page=1&limit=12",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "categories"],
+                  "query": [
+                    {
+                      "key": "includeProducts",
+                      "value": "true"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "12"
+                    }
+                  ]
+                },
+                "description": "Get list of categories with optional product inclusion and pagination"
+              },
+              "response": []
+            },
+            {
+              "name": "Get Categories with Product Count",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/categories/with-product-count?page=1&limit=12",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "categories", "with-product-count"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "12"
+                    }
+                  ]
+                },
+                "description": "Get list of categories with product counts"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Products Management",
+          "item": [
+            {
+              "name": "Create Product",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Delicious Burger\",\n  \"description\": \"A tasty burger with all the fixings\",\n  \"price\": 12.99,\n  \"image\": \"/uploads/burger.jpg\",\n  \"categoryId\": \"category-id-123\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/products",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "products"]
+                },
+                "description": "Create a new product"
+              },
+              "response": []
+            },
+            {
+              "name": "Update Product",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Product Name\",\n  \"description\": \"Updated description\",\n  \"price\": 14.99,\n  \"image\": \"/uploads/updated-product.jpg\",\n  \"categoryId\": \"category-id-123\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/products/{id}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "products", "{id}"]
+                },
+                "description": "Update an existing product by ID"
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Product",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/products/{id}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "products", "{id}"]
+                },
+                "description": "Delete a product by ID. This also deletes the associated image file."
+              },
+              "response": []
+            },
+            {
+              "name": "Get Products",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/products?includeCategory=true&page=1&limit=12",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "products"],
+                  "query": [
+                    {
+                      "key": "includeCategory",
+                      "value": "true"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "12"
+                    }
+                  ]
+                },
+                "description": "Get list of products with optional category inclusion and pagination"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Dashboard Data APIs",
+          "item": [
+            {
+              "name": "Get Categories Count",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stats/categories-count",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "stats", "categories-count"]
+                },
+                "description": "Get total count of categories"
+              },
+              "response": []
+            },
+            {
+              "name": "Get Products Count",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stats/products-count",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "stats", "products-count"]
+                },
+                "description": "Get total count of products"
+              },
+              "response": []
+            },
+            {
+              "name": "Get Orders Count",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stats/orders-count",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "stats", "orders-count"]
+                },
+                "description": "Get total count of orders"
+              },
+              "response": []
+            },
+            {
+              "name": "Get Total Revenue",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stats/revenue",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "stats", "revenue"]
+                },
+                "description": "Get total revenue from completed orders"
+              },
+              "response": []
+            },
+            {
+              "name": "Get Recent Orders",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stats/recent-orders?limit=5",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "stats", "recent-orders"],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "5"
+                    }
+                  ]
+                },
+                "description": "Get recent orders (default limit: 5)"
+              },
+              "response": []
+            },
+            {
+              "name": "Get Top Selling Products",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stats/top-selling?limit=5",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "stats", "top-selling"],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "5"
+                    }
+                  ]
+                },
+                "description": "Get top selling products (default limit: 5)"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Shop APIs",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user-id-123\",\n  \"items\": [\n    {\n      \"productId\": \"product-id-123\",\n      \"quantity\": 2,\n      \"price\": 12.99\n    }\n  ],\n  \"total\": 25.98\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/shop/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shop", "orders"]
+            },
+            "description": "Create a new order with specified items and user"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Public APIs",
+      "item": [
+        {
+          "name": "Get Products (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?category=category-id-123&page=1&limit=12",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "category-id-123"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "12"
+                }
+              ]
+            },
+            "description": "Get products for public display with optional category filter and pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{id}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "{id}"]
+            },
+            "description": "Get a specific product by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Categories (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories?page=1&limit=12",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "12"
+                }
+              ]
+            },
+            "description": "Get categories for public display with pagination"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Additional APIs (Recommended for Implementation)",
+      "item": [
+        {
+          "name": "Get Product by ID (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{id}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "{id}"]
+            },
+            "description": "Get a specific product by ID (should be implemented based on application usage in product detail page)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Products by Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/category/{categoryId}?page=1&limit=12",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "category", "{categoryId}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "12"
+                }
+              ]
+            },
+            "description": "Get products filtered by category ID (should be implemented based on application usage in product detail page for related products)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{userId}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{userId}", "orders"]
+            },
+            "description": "Get orders for a specific user (should be implemented for user dashboard functionality)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{id}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "{id}"]
+            },
+            "description": "Get a specific order by ID (should be implemented for order tracking functionality)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"SHIPPED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{id}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "{id}", "status"]
+            },
+            "description": "Update the status of an order (should be implemented for admin order management)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

@@ -10,19 +10,13 @@ interface SuccessModalProps {
   children?: React.ReactNode;
 }
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onClose, title, message, children }) => {
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isOpen) {
-      timer = setTimeout(() => {
-        onClose();
-      }, 3000); // Auto close after 3 seconds
-    }
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [isOpen, onClose]);
-
+const SuccessModal: React.FC<SuccessModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  message,
+  children
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -35,6 +29,12 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onClose, title, mes
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
           <p className="text-gray-600 mb-4">{message}</p>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+          >
+            Continue Shopping
+          </button>
           {children}
         </div>
       </div>

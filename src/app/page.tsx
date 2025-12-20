@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import Button from '@/components/ui/button';
 import Image from 'next/image';
 import { getCategories } from '@/actions/admin';
+import AlertModal from '@/components/ui/AlertModal';
 
 interface Category {
   id: string;
@@ -18,6 +19,7 @@ interface Category {
 const HomePage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -31,6 +33,12 @@ const HomePage = () => {
         setLoading(false);
       }
     };
+
+    // Check if checkout success parameter is present in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('checkout') === 'success') {
+      setShowCheckoutSuccess(true);
+    }
 
     fetchCategories();
   }, []);
@@ -125,6 +133,22 @@ const HomePage = () => {
       </main>
 
       <Footer />
+
+      {/* Checkout Success Modal */}
+      <AlertModal
+        isOpen={showCheckoutSuccess}
+        onClose={() => {
+          setShowCheckoutSuccess(false);
+          // Remove the checkout parameter from URL
+          const url = new URL(window.location.href);
+          url.searchParams.delete('checkout');
+          window.history.replaceState({}, '', url.toString());
+        }}
+        title="Order Placed Successfully!"
+        message="Thank you for your order. We're getting ready for your delicious meal!"
+        type="success"
+        autoClose={false}
+      />
     </div>
   );
 };

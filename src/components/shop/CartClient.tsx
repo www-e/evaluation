@@ -8,14 +8,12 @@ import { useRouter } from "next/navigation"
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react"
 import { useState } from "react"
 import Link from "next/link"
-import SuccessModal from "@/components/ui/SuccessModal"
 import AlertModal from "@/components/ui/AlertModal"
 
 export default function CartClient() {
   const { items, removeItem, updateQuantity, total, clearCart } = useCart()
   const { user } = useAuth() // Auth check on client for now
   const [loading, setLoading] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
   const [alert, setAlert] = useState<{isOpen: boolean, title: string, message: string, type: 'success' | 'error' | 'warning' | 'info'}>({
     isOpen: false,
     title: '',
@@ -55,12 +53,9 @@ export default function CartClient() {
         )
 
         if (res.success) {
-            setShowSuccess(true)
             clearCart()
-            // Redirect after a short delay to show the success message
-            setTimeout(() => {
-                router.push("/")
-            }, 3000)
+            // Redirect to home with success parameter
+            router.push("/?checkout=success");
         } else {
             showAlert("Error", "Failed to place order", 'error');
         }
@@ -148,14 +143,6 @@ export default function CartClient() {
                 </Button>
             </div>
         </div>
-
-        {/* Success Modal */}
-        <SuccessModal
-          isOpen={showSuccess}
-          onClose={() => setShowSuccess(false)}
-          title="Order Placed Successfully!"
-          message="Thank you for your order. We're getting ready for your delicious meal!"
-        />
 
         {/* Alert Modal */}
         <AlertModal
