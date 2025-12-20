@@ -41,7 +41,7 @@ const ProductsPage = () => {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     categories: [] as string[],
-    priceRange: [0, 200] as [number, number],
+    priceRange: [0, 200000] as [number, number],
     ratings: [] as number[]
   });
 
