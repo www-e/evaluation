@@ -1,11 +1,12 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/button';
 import Image from 'next/image';
+import Drawer from '@/components/ui/Drawer';
 import { useAuth } from '@/hooks/useAuth';
-import { User as UserIcon, LogOut } from 'lucide-react';
+import { User as UserIcon, LogOut, Menu, Home, ShoppingBag, Phone, UserRound } from 'lucide-react';
 import CartBadge from './CartBadge';
 
 interface HeaderProps {
@@ -14,6 +15,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ showAuthButtons = true }) => {
   const { user, loading, logout } = useAuth();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Format phone number for display
   const formatPhoneNumber = (phone: string): string => {
@@ -34,6 +36,13 @@ const Header: React.FC<HeaderProps> = ({ showAuthButtons = true }) => {
     }
     return phone;
   };
+
+  const navItems = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/products", label: "Products", icon: ShoppingBag },
+    { href: "/about", label: "About Us", icon: UserRound },
+    { href: "/contact", label: "Contact Us", icon: Phone },
+  ];
 
   return (
     <header className="w-full bg-white py-4 px-6 border-b border-gray-200 sticky top-0 z-50">
@@ -88,19 +97,10 @@ const Header: React.FC<HeaderProps> = ({ showAuthButtons = true }) => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={logout}
-                className="hidden md:flex items-center space-x-1"
+                className="p-2"
+                onClick={() => setIsDrawerOpen(true)}
               >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={logout}
-                className="md:hidden p-2" // Mobile: icon only
-              >
-                <LogOut className="w-4 h-4" />
+                <Menu className="w-4 h-4" />
               </Button>
             </div>
           ) : showAuthButtons && (
@@ -116,6 +116,57 @@ const Header: React.FC<HeaderProps> = ({ showAuthButtons = true }) => {
           )}
         </div>
       </div>
+
+      {/* Drawer for logged-in users */}
+      {user && (
+        <Drawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
+          <div className="p-6 h-full flex flex-col">
+            <div className="flex items-center space-x-3 mb-8">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <UserIcon className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-white">Welcome back!</p>
+                <p className="text-sm text-muted-foreground">{formatPhoneNumber(user.phoneNumber || '')}</p>
+              </div>
+            </div>
+
+            <nav className="flex-1">
+              <ul className="space-y-2">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        className="flex items-center space-x-3 p-3 rounded-lg text-white hover:bg-secondary transition-colors"
+                        onClick={() => setIsDrawerOpen(false)}
+                      >
+                        <Icon className="w-5 h-5" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+
+            <div className="mt-auto pt-6 border-t border-border">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => {
+                  logout();
+                  setIsDrawerOpen(false);
+                }}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </Drawer>
+      )}
     </header>
   );
 };

@@ -8,14 +8,27 @@ import { useRouter } from "next/navigation"
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react"
 import { useState } from "react"
 import Link from "next/link"
+import SuccessModal from "@/components/ui/SuccessModal"
+import AlertModal from "@/components/ui/AlertModal"
 
 export default function CartClient() {
   const { items, removeItem, updateQuantity, total, clearCart } = useCart()
   const { user } = useAuth() // Auth check on client for now
   const [loading, setLoading] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [alert, setAlert] = useState<{isOpen: boolean, title: string, message: string, type: 'success' | 'error' | 'warning' | 'info'}>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  })
   const router = useRouter()
 
   const totalPrice = total()
+
+  const showAlert = (title: string, message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    setAlert({isOpen: true, title, message, type});
+  };
 
   const handleCheckout = async () => {
     if (!user) {
@@ -23,18 +36,7 @@ export default function CartClient() {
         router.push("/login")
         return
     }
-    
-    // We need to fetch userId from our DB (since Firebase UID might not match if I used UUID).
-    // Actually, in syncUser I Upserted with `mobile` as unique. 
-    // Ideally I should store the database UserID in the session or fetch it here.
-    // For MVP, I will assume I need to fetch it or pass the mobile number to get ID.
-    // But `createOrder` needs UUID.
-    // To simplify: I'll fetch the user by mobile ON THE SERVER ACTION `createOrder`? 
-    // No, `createOrder` expects `userId`.
-    // Let's rely on the fact that `syncUser` returns `userId`. I should probably store that in a context or cookie.
-    // Hack for MVP: checkUserExists returns user object. I'll fetch user by mobile (from firebase user.phoneNumber) before calling createOrder.
-    // Wait, `checkUserExists` is an action. Safe to call.
-    
+
     setLoading(true)
     try {
         // Fetch the user from our database using the phone number from Firebase
@@ -42,7 +44,7 @@ export default function CartClient() {
         const { user: dbUser } = await checkUserExists(user.phoneNumber!)
 
         if (!dbUser) {
-            alert("User record not found. Please re-login.")
+            showAlert("Error", "User record not found. Please re-login.", 'error');
             return
         }
 
@@ -53,15 +55,18 @@ export default function CartClient() {
         )
 
         if (res.success) {
-            alert("Order Placed Successfully!")
+            setShowSuccess(true)
             clearCart()
-            router.push("/")
+            // Redirect after a short delay to show the success message
+            setTimeout(() => {
+                router.push("/")
+            }, 3000)
         } else {
-            alert("Failed to place order")
+            showAlert("Error", "Failed to place order", 'error');
         }
     } catch (e) {
         console.error("Checkout error:", e)
-        alert("Error processing checkout")
+        showAlert("Error", "Error processing checkout", 'error');
     } finally {
         setLoading(false)
     }
@@ -99,15 +104,15 @@ export default function CartClient() {
                         <p className="text-primary font-bold">${item.price}</p>
                     </div>
                     <div className="flex items-center gap-3 bg-secondary/50 rounded-lg p-1">
-                        <button 
-                            className="p-1 hover:bg-white/10 rounded" 
+                        <button
+                            className="p-1 hover:bg-white/10 rounded"
                             onClick={() => updateQuantity(item.productId, item.quantity - 1)}
                         >
                             <Minus className="h-4 w-4 text-white" />
                         </button>
                         <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
-                         <button 
-                            className="p-1 hover:bg-white/10 rounded" 
+                         <button
+                            className="p-1 hover:bg-white/10 rounded"
                             onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                         >
                             <Plus className="h-4 w-4 text-white" />
@@ -143,6 +148,23 @@ export default function CartClient() {
                 </Button>
             </div>
         </div>
+
+        {/* Success Modal */}
+        <SuccessModal
+          isOpen={showSuccess}
+          onClose={() => setShowSuccess(false)}
+          title="Order Placed Successfully!"
+          message="Thank you for your order. We're getting ready for your delicious meal!"
+        />
+
+        {/* Alert Modal */}
+        <AlertModal
+          isOpen={alert.isOpen}
+          onClose={() => setAlert({...alert, isOpen: false})}
+          title={alert.title}
+          message={alert.message}
+          type={alert.type}
+        />
     </div>
   )
 }

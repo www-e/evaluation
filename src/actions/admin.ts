@@ -35,6 +35,24 @@ export async function createCategory(data: z.infer<typeof categorySchema>) {
   }
 }
 
+export async function updateCategory(id: string, data: Partial<z.infer<typeof categorySchema>>) {
+  const result = categorySchema.partial().safeParse(data);
+  if (!result.success) return { error: "Invalid data" }
+
+  try {
+    const category = await prisma.category.update({
+      where: { id },
+      data: result.data
+    });
+
+    revalidatePath("/dashboard/categories");
+    revalidatePath("/");
+    return { success: true, data: category };
+  } catch (e) {
+    return { error: "Failed to update category" }
+  }
+}
+
 export async function deleteCategory(id: string) {
   try {
     // Get the category to access its image
@@ -72,6 +90,24 @@ export async function createProduct(data: z.infer<typeof productSchema>) {
     return { success: true }
   } catch (e) {
     return { error: "Failed to create product" }
+  }
+}
+
+export async function updateProduct(id: string, data: Partial<z.infer<typeof productSchema>>) {
+  const result = productSchema.partial().safeParse(data);
+  if (!result.success) return { error: "Invalid data" }
+
+  try {
+    const product = await prisma.product.update({
+      where: { id },
+      data: result.data
+    });
+
+    revalidatePath("/dashboard/products");
+    revalidatePath("/");
+    return { success: true, data: product };
+  } catch (e) {
+    return { error: "Failed to update product" }
   }
 }
 
@@ -146,4 +182,67 @@ export const getCategoriesCount = cache(async () => {
 
 export const getProductsCount = cache(async () => {
   return await prisma.product.count();
+})
+
+// Additional dashboard data functions
+export const getOrdersCount = cache(async () => {
+  return await prisma.order.count();
+})
+
+export const getTotalRevenue = cache(async () => {
+  const orders = await prisma.order.findMany({
+    where: { status: "COMPLETED" }
+  });
+
+  return orders.reduce((sum, order) => sum + order.total, 0);
+})
+
+export const getRecentOrders = cache(async (limit: number = 5) => {
+  return await prisma.order.findMany({
+    take: limit,
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: {
+        select: {
+          mobile: true
+        }
+      }
+    }
+  });
+})
+
+export const getTopSellingProducts = cache(async (limit: number = 5) => {
+  const orderItems = await prisma.orderItem.findMany({
+    select: {
+      productId: true,
+      quantity: true,
+      product: true
+    },
+    orderBy: {
+      quantity: 'desc'
+    },
+    take: limit * 10 // Get more items to account for different products
+  });
+
+  // Group by product and sum quantities
+  const productQuantities: Record<string, { productId: string, totalQuantity: number, product: any }> = {};
+
+  orderItems.forEach(item => {
+    if (productQuantities[item.productId]) {
+      productQuantities[item.productId].totalQuantity += item.quantity;
+    } else {
+      productQuantities[item.productId] = {
+        productId: item.productId,
+        totalQuantity: item.quantity,
+        product: item.product
+      };
+    }
+  });
+
+  // Convert to array and sort by quantity
+  const sortedProducts = Object.values(productQuantities)
+    .sort((a, b) => b.totalQuantity - a.totalQuantity)
+    .slice(0, limit);
+
+  return sortedProducts;
 })

@@ -75,12 +75,18 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     if (product) {
-      addItem({
+      // Add item with the selected quantity
+      const cartItem = {
         id: product.id,
         name: product.name,
         price: product.price,
         image: product.image || '/images/food.png',
-      });
+      };
+
+      addItem(cartItem, quantity);
+
+      // Reset quantity to 1 after adding to cart
+      setQuantity(1);
     }
   };
 
@@ -129,20 +135,25 @@ const ProductDetailPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Product Image */}
-            <div className="bg-gray-100 rounded-xl overflow-hidden aspect-square flex items-center justify-center">
+            <div className="bg-gray-100 rounded-xl overflow-hidden aspect-square flex items-center justify-center relative">
               {product.image ? (
                 <Image
                   src={product.image}
                   alt={product.name}
                   width={600}
                   height={600}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-center"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-200">
                   <span className="text-gray-500">No Image Available</span>
                 </div>
               )}
+              {/* Add image overlay with product info */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                <h1 className="text-xl font-bold text-white">{product.name}</h1>
+                <p className="text-amber-400 font-bold">{formatCurrency(product.price)}</p>
+              </div>
             </div>
 
             {/* Product Details */}
@@ -178,19 +189,19 @@ const ProductDetailPage = () => {
               {/* Quantity Selector */}
               <div className="flex items-center mb-8">
                 <span className="text-gray-700 mr-4">Quantity:</span>
-                <div className="flex items-center border border-gray-300 rounded-lg">
+                <div className="flex items-center border border-gray-300 rounded-lg bg-white">
                   <button
                     onClick={decreaseQuantity}
                     className="p-2 hover:bg-gray-100 rounded-l-lg"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-4 w-4 text-gray-700" />
                   </button>
-                  <span className="px-4 py-2">{quantity}</span>
+                  <span className="px-4 py-2 text-gray-900 font-medium min-w-[40px] text-center">{quantity}</span>
                   <button
                     onClick={increaseQuantity}
                     className="p-2 hover:bg-gray-100 rounded-r-lg"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4 text-gray-700" />
                   </button>
                 </div>
               </div>

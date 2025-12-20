@@ -174,7 +174,7 @@ export function RegisterForm() {
                 placeholder="John Doe"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-white text-gray-900"
                 />
             </div>
           </div>
@@ -187,10 +187,10 @@ export function RegisterForm() {
                 placeholder="+1 234 567 8900"
                 value={phoneNumber}
                 onChange={handlePhoneChange}
-                className="pl-10"
+                className="pl-10 bg-white text-gray-900"
                 />
             </div>
-            <p className="text-xs text-muted-foreground">Include country code (e.g. +1)</p>
+            <p className="text-xs text-gray-400">Include country code (e.g. +1)</p>
           </div>
 
           <Button
@@ -217,11 +217,11 @@ export function RegisterForm() {
                     placeholder="123456"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    className="pl-10 tracking-widest text-lg"
+                    className="pl-10 tracking-widest text-lg bg-white text-gray-900"
                     maxLength={6}
                 />
             </div>
-            <p className="text-xs text-muted-foreground">Enter the 6-digit code sent to {formatPhoneNumber(phoneNumber)}</p>
+            <p className="text-xs text-gray-400">Enter the 6-digit code sent to {formatPhoneNumber(phoneNumber)}</p>
           </div>
 
           <Button
