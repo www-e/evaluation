@@ -3,7 +3,6 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { deleteImage } from "@/lib/fileUpload"
 
 // Validations
 const categorySchema = z.object({
@@ -53,6 +52,8 @@ export async function updateCategory(id: string, data: Partial<z.infer<typeof ca
   }
 }
 
+import { utapi } from "@/uploadthing";
+
 export async function deleteCategory(id: string) {
   try {
     // Get the category to access its image
@@ -64,9 +65,20 @@ export async function deleteCategory(id: string) {
     // Delete the category
     await prisma.category.delete({ where: { id } })
 
-    // If the category had an image, delete it from the filesystem
-    if (category?.image) {
-      await deleteImage(category.image);
+    // If the category had an image from UploadThing, delete it from there too
+    if (category?.image && category.image.includes('uploadthing')) {
+      try {
+        // Extract file key from the URL and delete it
+        const url = new URL(category.image);
+        const pathParts = url.pathname.split('/');
+        if (pathParts.length > 1) {
+          const fileKey = pathParts[pathParts.length - 1];
+          await utapi.deleteFiles(fileKey);
+        }
+      } catch (deleteError) {
+        console.error("Error deleting image from UploadThing:", deleteError);
+        // Don't fail the operation if image deletion fails
+      }
     }
 
     revalidatePath("/dashboard/categories")
@@ -122,9 +134,20 @@ export async function deleteProduct(id: string) {
     // Delete the product
     await prisma.product.delete({ where: { id } })
 
-    // If the product had an image, delete it from the filesystem
-    if (product?.image) {
-      await deleteImage(product.image);
+    // If the product had an image from UploadThing, delete it from there too
+    if (product?.image && product.image.includes('uploadthing')) {
+      try {
+        // Extract file key from the URL and delete it
+        const url = new URL(product.image);
+        const pathParts = url.pathname.split('/');
+        if (pathParts.length > 1) {
+          const fileKey = pathParts[pathParts.length - 1];
+          await utapi.deleteFiles(fileKey);
+        }
+      } catch (deleteError) {
+        console.error("Error deleting image from UploadThing:", deleteError);
+        // Don't fail the operation if image deletion fails
+      }
     }
 
     revalidatePath("/dashboard/products")

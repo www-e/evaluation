@@ -1,16 +1,4 @@
-import { promises as fs } from 'fs';
-import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-
-// Define upload directory
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
-
-// Ensure upload directory exists
-try {
-  fs.mkdir(UPLOAD_DIR, { recursive: true });
-} catch (error) {
-  console.error('Error creating upload directory:', error);
-}
 
 interface UploadResult {
   success: boolean;
@@ -40,6 +28,7 @@ export function validateImageBuffer(buffer: Buffer, originalName: string, mimeTy
   return { isValid: true };
 }
 
+// This function is now primarily for validation since we're using UploadThing
 export async function saveImageBuffer(buffer: Buffer, originalName: string, mimeType: string): Promise<UploadResult> {
   try {
     const validation = validateImageBuffer(buffer, originalName, mimeType);
@@ -50,39 +39,23 @@ export async function saveImageBuffer(buffer: Buffer, originalName: string, mime
       };
     }
 
-    // Create unique filename
-    const fileExtension = path.extname(originalName) || '.' + mimeType.split('/')[1];
-    const fileName = `${uuidv4()}${fileExtension}`;
-    const filePath = path.join(UPLOAD_DIR, fileName);
-
-    // Save buffer to file
-    await fs.writeFile(filePath, buffer);
-
-    // Return the URL (relative to public directory)
+    // Since we're using UploadThing, this function mainly validates
+    // The actual upload is handled by UploadThing
     return {
       success: true,
-      url: `/uploads/${fileName}`
+      error: 'This function is deprecated. Use UploadThing instead.'
     };
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error('Validation error:', error);
     return {
       success: false,
-      error: 'Failed to upload image'
+      error: 'Failed to validate image: ' + (error instanceof Error ? error.message : String(error))
     };
   }
 }
 
 export async function deleteImage(imagePath: string): Promise<boolean> {
-  try {
-    if (!imagePath || !imagePath.startsWith('/uploads/')) {
-      return false;
-    }
-
-    const fullPath = path.join(process.cwd(), 'public', imagePath);
-    await fs.unlink(fullPath);
-    return true;
-  } catch (error) {
-    console.error('Delete image error:', error);
-    return false;
-  }
+  // Placeholder function - actual deletion would depend on your storage solution
+  console.warn('Deletion function needs to be implemented based on your storage solution');
+  return false;
 }

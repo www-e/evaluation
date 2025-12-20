@@ -64,41 +64,8 @@ export function ProductsClient({
     }
     setLoading(true)
 
-    // If there's an image file to upload, handle the upload first
-    let imageUrl: string | undefined;
-    if (image && image.startsWith('data:')) { // If it's a data URL (user selected a file but didn't upload yet)
-      const formData = new FormData();
-      // Convert data URL to blob
-      const response = await fetch(image);
-      const blob = await response.blob();
-      formData.append('file', blob, `product_${Date.now()}.jpg`);
-
-      try {
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const result = await uploadResponse.json();
-
-        if (uploadResponse.ok && result.url) {
-          imageUrl = result.url;
-          console.log("Image uploaded successfully:", result.url); // Debug log
-        } else {
-          showAlertMessage("Upload Error", result.error || 'Image upload failed', 'error');
-          setLoading(false);
-          return;
-        }
-      } catch (error) {
-        console.error("Image upload error:", error); // Debug log
-        showAlertMessage("Upload Error", 'Image upload failed: ' + (error as Error).message, 'error');
-        setLoading(false);
-        return;
-      }
-    } else {
-      imageUrl = image; // Use the existing image URL
-      console.log("Using existing image URL:", image); // Debug log
-    }
+    // The image is already a URL from UploadThing, so we can use it directly
+    const imageUrl = image; // This should now be a URL from UploadThing
 
     const res = await createProduct({
         name,
@@ -179,38 +146,8 @@ export function ProductsClient({
 
     setLoading(true);
 
-    // If there's an image file to upload, handle the upload first
-    let imageUrl: string | undefined = editImage || undefined;
-    if (editImage && editImage.startsWith('data:')) { // If it's a data URL (user selected a file but didn't upload yet)
-      const formData = new FormData();
-      // Convert data URL to blob
-      const response = await fetch(editImage);
-      const blob = await response.blob();
-      formData.append('file', blob, `product_${Date.now()}.jpg`);
-
-      try {
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const result = await uploadResponse.json();
-
-        if (uploadResponse.ok && result.url) {
-          imageUrl = result.url;
-          console.log("Image uploaded successfully:", result.url); // Debug log
-        } else {
-          showAlertMessage("Upload Error", result.error || 'Image upload failed', 'error');
-          setLoading(false);
-          return;
-        }
-      } catch (error) {
-        console.error("Image upload error:", error); // Debug log
-        showAlertMessage("Upload Error", 'Image upload failed: ' + (error as Error).message, 'error');
-        setLoading(false);
-        return;
-      }
-    }
+    // The image is already a URL from UploadThing, so we can use it directly
+    const imageUrl = editImage || undefined; // This should now be a URL from UploadThing
 
     try {
       // Use the updateProduct function from admin actions
@@ -290,48 +227,12 @@ export function ProductsClient({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Product Image</label>
-              <div
-                className="border-2 border-dashed border-input rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors"
-                onClick={() => document.getElementById('edit-product-image-upload')?.click()}
-              >
-                {editImage ? (
-                  <div className="relative w-full h-40 flex items-center justify-center">
-                    <img
-                      src={editImage}
-                      alt="Product preview"
-                      className="max-h-40 max-w-full object-contain"
-                    />
-                  </div>
-                ) : (
-                  <div className="py-8">
-                    <div className="mx-auto w-12 h-12 bg-secondary rounded-full flex items-center justify-center mb-2">
-                      <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">Click to select image</p>
-                    <p className="text-xs text-muted-foreground/70 mt-1">Supports JPG, PNG, WEBP</p>
-                  </div>
-                )}
-                <input
-                  id="edit-product-image-upload"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        if (event.target?.result) {
-                          setEditImage(event.target.result as string);
-                        }
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                  disabled={loading}
-                />
-              </div>
+              <ImageUpload
+                value={editImage || undefined}
+                onChange={(url) => setEditImage(url)}
+                label="Product Image"
+                disabled={loading}
+              />
             </div>
 
             <div className="flex gap-2">
@@ -394,48 +295,12 @@ export function ProductsClient({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Product Image</label>
-              <div
-                className="border-2 border-dashed border-input rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors"
-                onClick={() => document.getElementById('product-image-upload')?.click()}
-              >
-                {image ? (
-                  <div className="relative w-full h-40 flex items-center justify-center">
-                    <img
-                      src={image}
-                      alt="Product preview"
-                      className="max-h-40 max-w-full object-contain"
-                    />
-                  </div>
-                ) : (
-                  <div className="py-8">
-                    <div className="mx-auto w-12 h-12 bg-secondary rounded-full flex items-center justify-center mb-2">
-                      <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">Click to select image</p>
-                    <p className="text-xs text-muted-foreground/70 mt-1">Supports JPG, PNG, WEBP</p>
-                  </div>
-                )}
-                <input
-                  id="product-image-upload"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        if (event.target?.result) {
-                          setImage(event.target.result as string);
-                        }
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                  disabled={loading}
-                />
-              </div>
+              <ImageUpload
+                value={image || undefined}
+                onChange={(url) => setImage(url)}
+                label="Product Image"
+                disabled={loading}
+              />
             </div>
 
             <Button disabled={loading || !image} type="submit" className={`w-full md:w-auto ${!image ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'} text-black`}>
