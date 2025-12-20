@@ -80,18 +80,14 @@ export function ProductsClient({
       setDesc("")
       setPrice("")
       setImage(null)
-      // Optimistically update the UI
-      const newProduct = {
-        id: Date.now().toString(), // Temporary ID
-        name,
-        description: desc || null,
-        price: parseFloat(price),
-        image: imageUrl || null,
-        categoryId: catId,
-        category: categories.find(c => c.id === catId) || undefined
-      }
-      setProducts(prev => [newProduct, ...prev])
-      showAlertMessage("Success", "Product created successfully!", 'success');
+      // Refresh the product list instead of optimistic update to ensure data consistency
+      // We'll redirect or trigger a refresh to get the latest data from the server
+      showAlertMessage("Success", "Product created successfully! Refreshing list...", 'success');
+
+      // Refresh the page to get the latest data from the server
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } else {
       showAlertMessage("Error", "Error creating product", 'error');
     }

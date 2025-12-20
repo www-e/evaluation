@@ -57,15 +57,13 @@ export function CategoriesClient({
     if (res.success) {
       setName("")
       setImage(null)
-      // Optimistically update the UI
-      const newCategory = {
-        id: Date.now().toString(), // Temporary ID
-        name,
-        image: imageUrl || null,
-        products: [] // Empty array since we're fetching with product count
-      }
-      setCategories(prev => [newCategory, ...prev])
-      showAlertMessage("Success", "Category created successfully!", 'success');
+      // Refresh the category list instead of optimistic update to ensure data consistency
+      showAlertMessage("Success", "Category created successfully! Refreshing list...", 'success');
+
+      // Refresh the page to get the latest data from the server
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } else {
       showAlertMessage("Error", "Error creating category", 'error');
     }
