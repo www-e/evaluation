@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import FilterSidebar from '@/components/FilterSidebar';
@@ -146,11 +146,11 @@ const ProductsPage = () => {
         </div>
       </div>
 
-      <main className="flex-grow">
+      <main className="grow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filter Sidebar - Hidden on mobile by default, shown with filter button */}
-            <div className="lg:w-80 flex-shrink-0">
+            <div className="lg:w-80 shrink-0">
               <FilterSidebar
                 availableCategories={availableCategories}
                 onFiltersChange={handleFiltersChange}
@@ -158,10 +158,10 @@ const ProductsPage = () => {
             </div>
 
             {/* Main Content */}
-            <div className="flex-grow">
+            <div className="grow">
               {/* Search Bar */}
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <div className="flex-grow">
+                <div className="grow">
                   <Input
                     placeholder="Search products..."
                     value={searchQuery}

@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { RegisterForm } from '@/components/auth/RegisterForm';
@@ -50,7 +49,7 @@ const RegisterPage = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow flex">
+      <main className="grow flex">
         {/* Left side - Auth Image */}
         <div className="hidden lg:flex lg:w-1/2 bg-amber-50 items-center justify-center p-12">
           <div className="max-w-md w-full">

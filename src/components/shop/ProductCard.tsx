@@ -3,7 +3,6 @@
 import { useCart } from "@/store/cart"
 import { Button } from "@/components/ui/button"
 import { Plus, Image as ImageIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 interface ProductCardProps {
   product: {

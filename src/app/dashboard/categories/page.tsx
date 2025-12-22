@@ -1,6 +1,5 @@
 import { getCategoriesWithProductCount, getCategoriesCount } from "@/actions/admin"
 import { CategoriesClient } from "@/components/dashboard/CategoriesClient"
-import LoadingSpinner from "@/components/LoadingSpinner"
 
 // Using dynamic rendering for real-time updates
 export const dynamic = "force-dynamic"

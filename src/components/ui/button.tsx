@@ -1,5 +1,4 @@
 import React from 'react';
-import Link, { type LinkProps } from 'next/link';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'icon';

@@ -6,11 +6,10 @@ import { useCart } from '@/store/cart';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
-import { getProducts, getCategories } from '@/actions/admin';
+import { getProducts} from '@/actions/admin';
 import { formatCurrency } from '@/lib/utils';
 import Image from 'next/image';
 import StarRating from '@/components/ui/StarRating';
-import Link from 'next/link';
 import { ChevronLeft, Plus, Minus } from 'lucide-react';
 
 interface Product {
@@ -131,7 +130,7 @@ const ProductDetailPage = () => {
         </button>
       </div>
 
-      <main className="flex-grow">
+      <main className="grow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Product Image */}

@@ -5,15 +5,6 @@ import { ProductCard } from "@/components/shop/ProductCard"
 import { ShopSidebar } from "@/components/shop/ShopSidebar"
 import { Search } from "lucide-react" // Import icon
 
-interface Product {
-  id: string
-  name: string
-  description: string | null
-  price: number
-  image: string | null
-  categoryId: string
-  category: { id: string; name: string } | null // Handle relation properly
-}
 
 interface PageProps {
   initialProducts: any[] // Using any to bypass complex nested type mismatch for now in MVP
@@ -44,7 +35,7 @@ export function HomePageClient({ initialProducts, initialCategories }: PageProps
 
         <div className="container mx-auto px-4 py-12 flex flex-col lg:flex-row gap-12">
             {/* Sidebar */}
-            <aside className="w-full lg:w-64 flex-shrink-0">
+            <aside className="w-full lg:w-64 shrink-0">
                 <ShopSidebar 
                     categories={initialCategories} 
                     selectedCategory={selectedCategory} 

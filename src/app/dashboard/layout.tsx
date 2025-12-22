@@ -28,7 +28,7 @@ export default function DashboardLayout({
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-64 bg-card border-r border-border hidden md:flex flex-col flex-shrink-0">
+        <aside className="w-64 bg-card border-r border-border hidden md:flex flex-col shrink-0">
           <div className="p-6 border-b border-border">
             <h1 className="text-2xl font-bold text-primary tracking-tight">Buzzer Admin</h1>
             <p className="text-xs text-muted-foreground mt-1">Dashboard</p>

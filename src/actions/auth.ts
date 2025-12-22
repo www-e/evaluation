@@ -1,7 +1,6 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { redirect } from "next/navigation"
 
 export async function syncUser(mobile: string, fullName: string) {
   if (!mobile || !fullName) {

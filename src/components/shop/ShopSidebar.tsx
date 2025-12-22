@@ -1,12 +1,5 @@
 "use client"
 
-import { cn } from "@/lib/utils"
-// import { Checkbox } from "@/components/ui/checkbox" 
-// import { Slider } from "@/components/ui/slider"
-
-// MVP: I'll use standard inputs for filters to save time on complex UI components
-// Unless requested, "minimal codes".
-
 interface Category {
   id: string
   name: string

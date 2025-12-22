@@ -7,10 +7,10 @@ const ContactPage = () => {
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
 
-      <main className="flex-grow py-16">
+      <main className="grow py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
-          <p className="text-gray-600 mb-12">We'd love to hear from you! Get in touch with our team.</p>
+          <p className="text-gray-600 mb-12">We would love to hear from you! Get in touch with our team.</p>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div>
@@ -18,7 +18,7 @@ const ContactPage = () => {
 
               <div className="space-y-6">
                 <div className="flex items-start">
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <Phone className="h-6 w-6 text-amber-500" />
                   </div>
                   <div className="ml-4">
@@ -28,7 +28,7 @@ const ContactPage = () => {
                 </div>
 
                 <div className="flex items-start">
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <Mail className="h-6 w-6 text-amber-500" />
                   </div>
                   <div className="ml-4">
@@ -38,7 +38,7 @@ const ContactPage = () => {
                 </div>
 
                 <div className="flex items-start">
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <MapPin className="h-6 w-6 text-amber-500" />
                   </div>
                   <div className="ml-4">
